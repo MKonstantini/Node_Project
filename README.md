@@ -15,15 +15,15 @@ Educational project in which I learned and experimented with Express, MongoDB an
    ``` npm install ```
 
 ## ENV Variables 
-Server:
-NODE_ENV = development
-PORT = 8000
-DB = only my teacher and I know
-LocalDB = mongodb://127.0.0.1:27017/
-JWTKEY = "matkey"
+Server:   
+NODE_ENV = development   
+PORT = 8000   
+DB = only my teacher and I know   
+LocalDB = mongodb://127.0.0.1:27017/   
+JWTKEY = "matkey"   
 
-Client:
-REACT_APP_API = "http://localhost:8000/api"
+Client:   
+REACT_APP_API = "http://localhost:8000/api"   
 
 ## Available Scripts
 ```npm start``` 
