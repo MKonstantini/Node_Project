@@ -12,7 +12,7 @@ const cardSchema = new mongoose.Schema({
     bizNumber: {type: String},
     likes: {type: Array},
     createdAt: {type: String},
-    createdBy:{type: String, required}
+    createdBy:{type: String, required: true}
 })
 
 const Card = mongoose.model("cards", cardSchema)

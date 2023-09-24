@@ -14,11 +14,19 @@ app.listen(port, () => console.log(`connected to port http://localhost:${port}`)
 const mongoose = require("mongoose")
 mongoose
 .connect(process.env.DB, {useNewUrlParser: true}) 
-.then(() => console.log("connected to database MK-Cluster"))
+.then(() => console.log("connected to MongoDB database"))
 .catch((err) => console.log(err))
 
 // API
-// middleware
+// Morgan
+const morgan = require("morgan")
+app.use(morgan("combined"))
+
+// Chalk - chalk "not supported" - code: 'ERR_REQUIRE_ESM'
+// const chalk = require("chalk")
+// console.log(chalk.blue("chalk installed"))
+
+// express middlewares
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
 // routes

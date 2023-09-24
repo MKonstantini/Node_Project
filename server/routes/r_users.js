@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
             isAdmin: user.isAdmin,
             isBusiness: user.isBusiness
         }, process.env.JWTKEY)
-        res.status(200).send(token)
+        res.status(201).send(token)
         
     } catch (err) {
         res.status(400).send(err)
@@ -73,7 +73,7 @@ router.post("/login", async (req, res) => {
 
         // check password with encryption - bcrypt.compare()
         const result = await bcrypt.compare(req.body.password, user.password)
-        if (!result) return res.status(400).send("wrong email or pasword")
+        if (!result) return res.status(404).send("wrong email or pasword")
 
         // return res with token
         const token = jwt.sign({
@@ -94,7 +94,7 @@ router.get("/", auth, async(req, res) => {
     try {
         // check if admin
         if (req.payload.isAdmin != true) 
-        return res.status(400).send("unauthorized")
+        return res.status(401).send("unauthorized")
 
         // get all users from DB
         const users = await User.find()
@@ -102,7 +102,7 @@ router.get("/", auth, async(req, res) => {
         // send res
         users 
         ? res.status(200).send(users)
-        : res.status(400).send("no users found")
+        : res.status(404).send("no users found")
 
     } catch (err) {
         res.status(400).send(err)        
@@ -114,13 +114,13 @@ router.get("/:id", auth, async(req, res) => {
     try {
         // handle unauthorization
         if (req.payload._id != req.params.id && req.payload.isAdmin != true) 
-        return res.status(400).send("unauthorized")
+        return res.status(401).send("unauthorized")
 
         // get user
         const user = await User.findById(req.params.id)
 
         // return if not found
-        if (!user) return res.status(400).send("user not found")
+        if (!user) return res.status(404).send("user not found")
 
         // send profile info
         res.status(200).send(_.pick(user, [
@@ -142,16 +142,16 @@ router.put("/:id", auth, async(req, res) => {
     try {
         // handle unauthorization
         if (req.payload._id != req.params.id) 
-        return res.status(400).send("unauthorized")
+        return res.status(401).send("unauthorized")
 
         // put user
         const user = await User.findOneAndUpdate({_id: req.params.id }, req.body, {new: true})
         
         // return if not found
-        if (!user) return res.status(400).send("user not found")
+        if (!user) return res.status(404).send("user not found")
 
         // send profile info
-        res.status(200).send(_.pick(user, [
+        res.status(201).send(_.pick(user, [
             "_id", 
             "name",
             "email",
@@ -171,13 +171,13 @@ router.patch("/:id", auth, async(req, res) => {
     try {
         // handle unauthorization
         if (req.payload._id != req.params.id) 
-        return res.status(400).send("unauthorized")
+        return res.status(401).send("unauthorized")
 
         // patch is business field
         const user = await User.findOneAndUpdate({_id: req.params.id }, {isBusiness: req.body.isBusiness}, {new: true})
         
         // return if not found
-        if (!user) return res.status(400).send("user not found")
+        if (!user) return res.status(404).send("user not found")
 
         // send profile info
         res.status(200).send(_.pick(user, [
@@ -200,13 +200,13 @@ router.delete("/:id", auth, async(req, res) => {
     try {
         // handle unauthorization
         if (req.payload._id != req.params.id && req.payload.isAdmin != true) 
-        return res.status(400).send("unauthorized")
+        return res.status(401).send("unauthorized")
 
         // delete user
         const user = await User.findOneAndDelete({_id: req.params.id })
         
         // return if not found
-        if (!user) return res.status(400).send("user not found")
+        if (!user) return res.status(404).send("user not found")
 
         // return user
         res.status(200).send(user)

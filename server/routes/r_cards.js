@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
     try {
         // handle unauthorization
         if (req.payload.isBusiness != true)
-        return res.status(400).send("unauthorized")
+        return res.status(401).send("unauthorized")
 
         // joi validation
         const {error} = cardJoiSchema.validate(req.body)
@@ -63,7 +63,7 @@ router.get("/", async(req, res) => {
         // send res
         cards 
         ? res.status(200).send(cards)
-        : res.status(400).send("no cards found")
+        : res.status(404).send("no cards found")
 
     } catch (err) {
         res.status(400).send(err)        
@@ -81,11 +81,11 @@ router.get("/my-cards", auth, async(req, res) => {
         const card = await Card.find({createdBy: req.payload.email})
 
         // return if not found
-        if (!card) return res.status(400).send("no cards found")
+        if (!card) return res.status(404).send("no cards found")
 
         // handle unauthorization
         if (req.payload.email != card.createdBy) 
-        return res.status(400).send("unauthorized")
+        return res.status(401).send("unauthorized")
 
         // send card
         res.status(200).send(card)
@@ -102,7 +102,7 @@ router.get("/:id", async(req, res) => {
         const card = await Card.find({_id: req.params.id})
 
         // return if not found
-        if (!card) return res.status(400).send("card not found")
+        if (!card) return res.status(404).send("card not found")
 
         // send card
         res.status(200).send(card)
@@ -119,17 +119,17 @@ router.put("/:id", auth, async(req, res) => {
         let card = await Card.find({_id: req.params.id})
         
         // return if not found
-        if (!card) return res.status(400).send("card not found")
+        if (!card) return res.status(404).send("card not found")
 
         // handle unauthorization
         if (card.createdBy != req.params.email)
-        return res.status(400).send("unauthorized")
+        return res.status(401).send("unauthorized")
 
         // edit card
         card = await Card.findOneAndUpdate({_id: req.params.id }, req.body, {new: true})
 
         // send edited card
-        res.status(200).send(card)
+        res.status(201).send(card)
 
     } catch (err) {
         res.status(400).send(err)        
@@ -145,7 +145,7 @@ router.patch("/:id", auth, async(req, res) => {
 
         // check if exists
         let card = await Card.find({_id: req.params.id})
-        if (!card) return res.status(400).send("card not found")
+        if (!card) return res.status(404).send("card not found")
 
         // get likes array
         let likesArr = card.likes
@@ -158,7 +158,7 @@ router.patch("/:id", auth, async(req, res) => {
         else likesArr.push(req.payload._id)
         
         // patch card with new likes array
-        card = await Card.findOneAndUpdate({email: req.params.email }, {likes: likesArr}, {new: true})
+        card = await Card.findOneAndUpdate({_id: req.params.id}, {likes: likesArr}, {new: true})
 
         // send edited card
         res.status(200).send(card)
@@ -175,11 +175,11 @@ router.delete("/:id", auth, async(req, res) => {
         let card = await Card.find({_id: req.params.id})
         
         // return if not found
-        if (!card) return res.status(400).send("card not found")
+        if (!card) return res.status(404).send("card not found")
 
         // handle unauthorization
         if (card.createdBy != req.payload.email || req.payload.isAdmin != true)
-        return res.status(400).send("unauthorized")
+        return res.status(401).send("unauthorized")
 
         // delete card
         card = await Card.findOneAndDelete({_id: req.params.id })
@@ -190,6 +190,34 @@ router.delete("/:id", auth, async(req, res) => {
     } catch (err) {
         res.status(400).send(err)        
     }
+})
+
+// BONUS CHANGE BIZNUMBER 
+router.patch("/:id/biznumber", auth, async (req, res) => {
+    try {
+        // handle unauthorization
+        if (req.payload.isAdmin != true) return res.status(401).send("unauthorized")
+
+        // get card
+        let card = await Card.find({_id: req.params.id})
+        
+        // return if not found
+        if (!card) return res.status(404).send("card not found")
+
+        // check if new bizNumber is taken
+        let taken = await Card.find({bizNumber: req.body.bizNumber})
+        if (taken) return res.status(400).send("bizNumber is taken")
+
+        // patch bizNumber
+        card = await Card.findOneAndUpdate({_id: req.params.id }, {bizNumber: req.body.bizNumber}, {new: true})
+
+        // send patched card
+        res.status(200).send(card)
+
+    } catch (err) {
+        
+    }
+
 })
 
 module.exports = router
