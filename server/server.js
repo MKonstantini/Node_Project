@@ -26,6 +26,9 @@ app.use(morgan("combined"))
 // const chalk = require("chalk")
 // console.log(chalk.blue("chalk installed"))
 
+// static folder redirect
+app.use(express.static("static"))
+
 // express middlewares
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
