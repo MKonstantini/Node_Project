@@ -13,7 +13,7 @@ app.listen(port, () => console.log(`connected to port http://localhost:${port}`)
 // DB - Mongoose
 const mongoose = require("mongoose")
 mongoose
-.connect(process.env.DB, {useNewUrlParser: true}) 
+.connect(process.env.DB || process.env.LocalDB, {useNewUrlParser: true}) 
 .then(() => console.log("connected to MongoDB database"))
 .catch((err) => console.log(err))
 
@@ -26,9 +26,6 @@ app.use(morgan("combined"))
 // const chalk = require("chalk")
 // console.log(chalk.blue("chalk installed"))
 
-// static folder redirect
-app.use(express.static("static"))
-
 // express middlewares
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
@@ -37,8 +34,20 @@ const r_users = require("./routes/r_users")
 app.use("/api/users", r_users)
 const r_cards = require("./routes/r_cards")
 app.use("/api/cards", r_cards)
+
+// public folder redirect
+const bodyParser = require("body-parser")
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(express.static(__dirname + "/public/index.html"));
+// static folder
+app.use(express.static(__dirname + 'public'));
+
 // testing
 app.get("/api/test", (req, res) => {
     try {res.status(200).send("test complete")} 
     catch (err) {res.status(400).send(err)}
 })
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
