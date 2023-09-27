@@ -39,8 +39,8 @@ app.use("/api/cards", r_cards)
 const bodyParser = require("body-parser")
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static(__dirname + "/public/index.html"));
 // static folder
+app.use(express.static(__dirname + "/public/index.html"));
 app.use(express.static(__dirname + 'public'));
 
 // testing
